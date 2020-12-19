@@ -1,0 +1,76 @@
+import React from 'react'; import { Table } from 'react-bootstrap' import CoinGeko from '../../dataProviders/CoinGeko';
+
+
+
+
+
+import './CurrencyList.css';
+
+class CurrencyList extends React.Component {
+
+    constructor(props) {
+
+        super(props);
+        this.state = {
+            items: props.items
+        }
+
+        setInterval(() => {
+            this.watchForChanges()
+        }, 5000);
+
+        this.createRows = this.createRows.bind(this);
+        this.watchForChanges = this.watchForChanges.bind(this);
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        return {items: props.items };
+    }
+
+    render() {
+        return (
+            <Table striped bordered hover>
+                <thead>
+                    <tr>
+                        <th>Currency</th>
+                        <th>Amount</th>
+                        <th>Rate USD</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {this.createRows()}
+                </tbody>
+            </Table>
+        );
+    }
+
+    watchForChanges(){
+        CoinGeko.getDetails(this.state.items).then((res) => {
+
+            Object.keys(res).forEach((name) => {
+                let items = this.state.items
+                console.log(name)
+                console.log(items)
+                console.log(items[name])
+                items[name]['price'] = res[name].price
+                // this.setState({items: items});
+            })
+
+            console.log('res', res['bitcoin']);
+        });
+    }
+
+    createRows() {
+        let array = []
+        this.state.items.forEach(element => {
+            array.push(<tr>
+                <td>{element.currency}</td>
+                <td>{element.amount}</td>
+                <td>{element.price}</td>
+            </tr>)
+        });
+        return array;
+    }
+}
+
+export default CurrencyList;
